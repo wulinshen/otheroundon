@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
+    <title>React App</title>
+    <style>
+      #map {
+        height: 100%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <br><br><br><br>
+       <div id="formId"> hello Vincent! </div>
+    <br>
+        <div id="map"></div>
+            <script>
+               
+                  function addFormPage(latForm, lngForm){
+                    $("#formId").load("markerSubmit.html", function(){
+                      $('#submitButton').click(function(e) {
+                        e.preventDefault();
+                        var yourName = $('#yourName').val();
+                        var msgTitle = $('#msgTitle').val();
+                        var msgBody = $('#msgBody').val();
+                       
+                        $.ajax({
+                          type: "POST",
+                          url: 'https://vince2ndtry.herokuapp.com/markers',
+                          data: {
+                            name: yourName,
+                            geoType: "Point",
+                            msgTitle,
+                            msgBody,
+                            lat: latForm,
+                            lng: lngForm
+                                }
+                            });
+                        console.log(yourName, msgTitle, msgBody, latForm, lngForm, " clicked!");
+                        console.log("Submitted!");
+                        window.location.href ="/";
+                     });                 
+                    })
+                   }
+
+
+
+                  function fetchMarkers(){
+                     var ap_List = [];
+                      jQuery.ajax({
+                          async   : false,
+                          method: "GET",
+                          url:`https://vince2ndtry.herokuapp.com/markers`,
+                          success: (markers)=>{
+                             ap_List = markers;
+                          }
+                      });
+                      return ap_List;        
+                  }
+
+
+                  function removeMarkerByMarkerId(markerId){
+                      jQuery.ajax({
+                          method: "DELETE",
+                          url:"https://vince2ndtry.herokuapp.com/markers/"+markerId,
+                          success: (marker)=>{
+                             console.log(marker+ " deleted");
+                          }
+                      });
+                  }
+
+                 
+
+                  function fetchMarkerIdbyIndexId(indexId){
+                     var ap_List = [];
+                     var markerId;
+                     ap_List = fetchMarkers(); 
+                     markerId = ap_List[indexId]._id;
+                     return markerId;
+                  }
+
+
+                  function removeMarkerFromUI(indexId){
+                      var markerId = fetchMarkerIdbyIndexId(indexId);
+                      removeMarkerByMarkerId(markerId);
+                      console.log(indexId, markerId, " from removeMarkerFromUI Clicked!");
+                      alert("Deleted!");
+                      window.location.href ="/";
+                   }
+
+
+                  function getMsgImage(){
+                   let msgImage = {
+                      url : "http://findicons.com/files/icons/1376/smoothicons_7/128/email_entourage.png",
+                      scaledSize : new google.maps.Size(22, 32)
+                    };
+                    return msgImage;
+                   }
+                  
+
+                  function initMap() {
+                    var pos;
+                    var airportList = fetchMarkers();
+                    //console.log("airportList",airportList);
+
+                    var map = new google.maps.Map(document.getElementById('map'), {
+                      zoom: 12
+                       ,
+                       center: {lat: 38.954703, lng: -77.357451 }
+                    });
+
+                       if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                       pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                      };
+
+                       var contentString = "<h5>You are here</h5>";
+                          var infowindow = new google.maps.InfoWindow({
+                              content: contentString
+                            });
+
+                        var initialMarker = new google.maps.Marker({
+                              position: pos,
+                              map: map
+                          });
+                          
+                          initialMarker.addListener('click', function() {
+                          infowindow.open(map, initialMarker);
+                           });
+                          infowindow.open(map, initialMarker);
+
+                      map.setCenter(pos);
+                    }, function() {
+                      console.log("Error getting position!");
+                    });
+                  } ;
+
+
+                     //var infoWindow = new google.maps.InfoWindow({map: map});
+
+                    //  // Try HTML5 geolocation.
+                    //   if (navigator.geolocation) {
+                    //     navigator.geolocation.getCurrentPosition(function(position) {
+                    //        pos = {
+                    //         lat: position.coords.latitude,
+                    //         lng: position.coords.longitude
+                    //       };
+
+                    //       var contentString = "<h4>You are here</h4>";
+                    //       var infowindow = new google.maps.InfoWindow({
+                    //           content: contentString
+                    //         });
+
+                    //     var initialMarker = new google.maps.Marker({
+                    //           position: pos,
+                    //           map: map
+                    //       });
+                          
+                    //       initialMarker.addListener('click', function() {
+                    //       infowindow.open(map, initialMarker);
+                    //        });
+                    //       infowindow.open(map, initialMarker);
+
+                    //       // infoWindow.setPosition(pos);
+                    //       // infoWindow.setContent('Location found.');
+                    //       map.setCenter(pos);
+                    //     }, function() {
+                    //       handleLocationError(true, infoWindow, map.getCenter());
+                    //     });
+                    //   } else {
+                    //     // Browser doesn't support Geolocation
+                    //     handleLocationError(false, infoWindow, map.getCenter());
+                    //   }
+                    // }
+
+                    // function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+                    //   infoWindow.setPosition(pos);
+                    //   infoWindow.setContent(browserHasGeolocation ?
+                    //                         'Error: The Geolocation service failed.' :
+                    //                         'Error: Your browser doesn\'t support geolocation.');
+
+
+
+                    //var secretMessages = ['the', 'secret', 'message'];
+                    let msgImage = getMsgImage();
+                    //console.log("airportList3",airportList);
+                    console.log("airportList.length",airportList.length);
+
+                    for (var i = 0; i < airportList.length; ++i) {
+                      var marker = new google.maps.Marker({
+                        position: {
+                          lat: airportList[i].loc.coordinates[0],
+                          lng: airportList[i].loc.coordinates[1]
+                        },
+                        map: map,
+                        icon: msgImage
+                      });
+
+                      var airportList_msg = "<h3>"+ airportList[i].name +"</h3>"+
+                                            "<h4>"+ airportList[i].msg.title +"</h4>"+
+                                            "<p><i>"+ airportList[i].msg.body +"</i></p>"+
+                                            "<button id='removeBtn_"+i+"' onClick='removeMarkerFromUI("+i+")'><b>Remove Me</b></button>";
+                      attachSecretMessage(marker, airportList_msg);
+                    }
+
+                      // This event listener calls addMarker() when the map is clicked.
+                      google.maps.event.addListener(map, 'click', function(event) {
+                        let markerLat = event.latLng.lat(),
+                            markerLng = event.latLng.lng();
+                           
+                        addMarker(event.latLng, map);
+                        console.log(markerLat, markerLng);
+                        addFormPage(parseFloat(markerLat), parseFloat(markerLng));
+                      });
+                    }
+
+                    // Adds a marker to the map.
+                    function addMarker(location, map) {
+                      let msgImage = getMsgImage();
+                      // Add the marker at the clicked location, and add the next-available label
+                      // from the array of alphabetical characters.
+                      var marker = new google.maps.Marker({
+                        position: location,
+                        map: map,
+                        icon: msgImage
+                      });
+                  }
+
+                  function attachSecretMessage(marker, secretMessage) {
+                    var infowindow = new google.maps.InfoWindow({
+                      content: secretMessage
+                    });
+
+                    marker.addListener('click', function() {
+                      infowindow.open(marker.get('map'), marker);
+                    });
+                  }
+
+            
+            </script>
+            
+            <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBu3DX6ZQeurvDGR0tDZ1pVmtCsbJXVyVU&callback=initMap"
+            async defer>
+            </script>
+
+  </body>
+</html>
