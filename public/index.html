@@ -21,15 +21,14 @@
   </head>
   <body>
     <div id="root"></div>
-    <br><br><br><br>
+    <br>
        <div id="formId"> hello Vincent! </div>
     <br>
         <div id="map"></div>
             <script>
-               
                   function addFormPage(latForm, lngForm){
                     $("#formId").load("markerSubmit.html", function(){
-                      $('#submitButton').click(function(e) {
+                      $('#submitButton').on('click touchstart', function(e) {
                         e.preventDefault();
                         var yourName = $('#yourName').val();
                         var msgTitle = $('#msgTitle').val();
@@ -92,11 +91,14 @@
 
 
                   function removeMarkerFromUI(indexId){
+                    $('removeBtn_'+indexId).on('click touchstart', function(e){
+                      e.preventDefault();
                       var markerId = fetchMarkerIdbyIndexId(indexId);
                       removeMarkerByMarkerId(markerId);
                       console.log(indexId, markerId, " from removeMarkerFromUI Clicked!");
                       alert("Deleted!");
                       window.location.href ="/";
+                      })
                    }
 
 
@@ -140,7 +142,11 @@
                           initialMarker.addListener('click', function() {
                           infowindow.open(map, initialMarker);
                            });
+
+                           initialMarker.addListener('touchstart', function() {
                           infowindow.open(map, initialMarker);
+                           });
+                          //infowindow.open(map, initialMarker);
 
                       map.setCenter(pos);
                     }, function() {
@@ -148,53 +154,6 @@
                     });
                   } ;
 
-
-                     //var infoWindow = new google.maps.InfoWindow({map: map});
-
-                    //  // Try HTML5 geolocation.
-                    //   if (navigator.geolocation) {
-                    //     navigator.geolocation.getCurrentPosition(function(position) {
-                    //        pos = {
-                    //         lat: position.coords.latitude,
-                    //         lng: position.coords.longitude
-                    //       };
-
-                    //       var contentString = "<h4>You are here</h4>";
-                    //       var infowindow = new google.maps.InfoWindow({
-                    //           content: contentString
-                    //         });
-
-                    //     var initialMarker = new google.maps.Marker({
-                    //           position: pos,
-                    //           map: map
-                    //       });
-                          
-                    //       initialMarker.addListener('click', function() {
-                    //       infowindow.open(map, initialMarker);
-                    //        });
-                    //       infowindow.open(map, initialMarker);
-
-                    //       // infoWindow.setPosition(pos);
-                    //       // infoWindow.setContent('Location found.');
-                    //       map.setCenter(pos);
-                    //     }, function() {
-                    //       handleLocationError(true, infoWindow, map.getCenter());
-                    //     });
-                    //   } else {
-                    //     // Browser doesn't support Geolocation
-                    //     handleLocationError(false, infoWindow, map.getCenter());
-                    //   }
-                    // }
-
-                    // function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-                    //   infoWindow.setPosition(pos);
-                    //   infoWindow.setContent(browserHasGeolocation ?
-                    //                         'Error: The Geolocation service failed.' :
-                    //                         'Error: Your browser doesn\'t support geolocation.');
-
-
-
-                    //var secretMessages = ['the', 'secret', 'message'];
                     let msgImage = getMsgImage();
                     //console.log("airportList3",airportList);
                     console.log("airportList.length",airportList.length);
@@ -212,7 +171,7 @@
                       var airportList_msg = "<h3>"+ airportList[i].name +"</h3>"+
                                             "<h4>"+ airportList[i].msg.title +"</h4>"+
                                             "<p><i>"+ airportList[i].msg.body +"</i></p>"+
-                                            "<button id='removeBtn_"+i+"' onClick='removeMarkerFromUI("+i+")'><b>Remove Me</b></button>";
+                                            "<button id='removeBtn_"+i+"'><b>Remove Me</b></button>";
                       attachSecretMessage(marker, airportList_msg);
                     }
 
