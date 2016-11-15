@@ -22,34 +22,61 @@
   <body>
     <div id="root"></div>
     <br>
-       <div id="formId"> hello Vincent! </div>
+       <div id="formId"> <h3> Hello Vincent! </h3> </div>
     <br>
         <div id="map"></div>
             <script>
                   function addFormPage(latForm, lngForm){
                     $("#formId").load("markerSubmit.html", function(){
-                      $('#submitButton').on('click touchstart', function(e) {
-                        e.preventDefault();
-                        var yourName = $('#yourName').val();
-                        var msgTitle = $('#msgTitle').val();
-                        var msgBody = $('#msgBody').val();
-                       
-                        $.ajax({
-                          type: "POST",
-                          url: 'https://vince2ndtry.herokuapp.com/markers',
-                          data: {
-                            name: yourName,
-                            geoType: "Point",
-                            msgTitle,
-                            msgBody,
-                            lat: latForm,
-                            lng: lngForm
-                                }
-                            });
-                        console.log(yourName, msgTitle, msgBody, latForm, lngForm, " clicked!");
-                        console.log("Submitted!");
-                        window.location.href ="/";
-                     });                 
+
+                          $('#submitButton').on('click touchstart', function(e) {
+                            e.preventDefault();
+                            var yourName = $('#yourName').val();
+                            var msgTitle = $('#msgTitle').val();
+                            var msgBody = $('#msgBody').val();
+                          
+                            $.ajax({
+                              type: "POST",
+                              url: 'https://vince2ndtry.herokuapp.com/markers',
+                              data: {
+                                name: yourName,
+                                geoType: "Point",
+                                msgTitle,
+                                msgBody,
+                                lat: latForm,
+                                lng: lngForm
+                                    }
+                                });
+                            console.log(yourName, msgTitle, msgBody, latForm, lngForm, " clicked!");
+                            console.log("Submitted!");
+                            window.location.href ="/";
+                        }); 
+
+                        $('#submitButton').on('keypress', function(e) {
+                            e.preventDefault();
+                            var yourName = $('#yourName').val();
+                            var msgTitle = $('#msgTitle').val();
+                            var msgBody = $('#msgBody').val();
+                           if (event.keyCode == 13) {
+                            $.ajax({
+                              type: "POST",
+                              url: 'https://vince2ndtry.herokuapp.com/markers',
+                              data: {
+                                name: yourName,
+                                geoType: "Point",
+                                msgTitle,
+                                msgBody,
+                                lat: latForm,
+                                lng: lngForm
+                                    }
+                                });
+                           }
+                            console.log(yourName, msgTitle, msgBody, latForm, lngForm, " clicked!");
+                            console.log("Submitted!");
+                            window.location.href ="/";
+                        }); 
+
+
                     })
                    }
 
@@ -91,9 +118,10 @@
 
 
                   function removeMarkerFromUI(indexId){
-                    $('removeBtn_'+indexId).on('click touchstart', function(e){
+                    $('#removeBtn_'+indexId).on('click', function(e){
                       e.preventDefault();
                       var markerId = fetchMarkerIdbyIndexId(indexId);
+                      console.log("markerId",markerId);
                       removeMarkerByMarkerId(markerId);
                       console.log(indexId, markerId, " from removeMarkerFromUI Clicked!");
                       alert("Deleted!");
@@ -102,9 +130,9 @@
                    }
 
 
-                  function getMsgImage(){
+                  function getMsgImage(url){
                    let msgImage = {
-                      url : "http://findicons.com/files/icons/1376/smoothicons_7/128/email_entourage.png",
+                      url : url,
                       scaledSize : new google.maps.Size(22, 32)
                     };
                     return msgImage;
@@ -133,10 +161,11 @@
                           var infowindow = new google.maps.InfoWindow({
                               content: contentString
                             });
-
+                         
                         var initialMarker = new google.maps.Marker({
                               position: pos,
-                              map: map
+                              map: map,
+                              icon: getMsgImage("https://cdn1.iconfinder.com/data/icons/Map-Markers-Icons-Demo-PNG/128/Map-Marker-Ball-Left-Pink.png")
                           });
                           
                           initialMarker.addListener('click', function() {
@@ -154,7 +183,7 @@
                     });
                   } ;
 
-                    let msgImage = getMsgImage();
+                    let msgImage = getMsgImage("http://findicons.com/files/icons/1376/smoothicons_7/128/email_entourage.png");
                     //console.log("airportList3",airportList);
                     console.log("airportList.length",airportList.length);
 
@@ -188,7 +217,7 @@
 
                     // Adds a marker to the map.
                     function addMarker(location, map) {
-                      let msgImage = getMsgImage();
+                      let msgImage = getMsgImage("http://findicons.com/files/icons/1376/smoothicons_7/128/email_entourage.png");
                       // Add the marker at the clicked location, and add the next-available label
                       // from the array of alphabetical characters.
                       var marker = new google.maps.Marker({
